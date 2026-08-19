@@ -2,14 +2,13 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# 安装系统依赖（python-docx 和 PyPDF2 的底层 C 库）
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
-
 # 先复制依赖文件，利用 Docker 层缓存
+# 注意：所有依赖在 linux/amd64 + Python 3.11 均有预编译 wheel，无需 gcc
+# pip 使用腾讯云内网镜像加速（境外服务器可改回默认源）
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    -r requirements.txt
 
 # 复制项目代码
 COPY . .

@@ -3,8 +3,10 @@ FROM node:18-alpine as build
 WORKDIR /app
 
 # 先复制依赖文件，利用 Docker 层缓存
+# npm 使用腾讯云镜像加速（境外服务器可删除 registry 配置）
 COPY package*.json ./
-RUN npm install --legacy-peer-deps
+RUN npm config set registry https://mirrors.cloud.tencent.com/npm/ \
+    && npm install --legacy-peer-deps
 
 # 复制源代码并构建
 COPY . .
