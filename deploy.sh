@@ -134,6 +134,56 @@ fi
 echo ""
 
 #---------------------------------------------
+# 3.5 读取端口配置并检测冲突
+#---------------------------------------------
+# 从 .env 读取端口（默认 80 / 8000）
+FRONTEND_PORT=$(grep -E "^FRONTEND_PORT=" .env 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
+BACKEND_PORT=$(grep -E "^BACKEND_PORT=" .env 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
+[[ -z "$FRONTEND_PORT" ]] && FRONTEND_PORT=80
+[[ -z "$BACKEND_PORT" ]] && BACKEND_PORT=8000
+export FRONTEND_PORT BACKEND_PORT
+
+print_info "端口配置: 前端=$FRONTEND_PORT, 后端=$BACKEND_PORT"
+
+# 检测端口是否被占用（排除本脚本即将启动的容器自身）
+check_port() {
+    local port=$1
+    if command -v ss &> /dev/null; then
+        ss -tlnp 2>/dev/null | grep -E ":${port}\s" | grep -v "docker\|containerd" | head -1
+    else
+        netstat -tlnp 2>/dev/null | grep -E ":${port}\s" | head -1
+    fi
+}
+
+PORT_CONFLICT=0
+for p in "$FRONTEND_PORT" "$BACKEND_PORT"; do
+    OCCUPANT=$(check_port "$p")
+    if [[ -n "$OCCUPANT" ]]; then
+        print_warn "端口 $p 已被占用:"
+        echo "    $OCCUPANT"
+        PORT_CONFLICT=1
+    fi
+done
+
+if [[ $PORT_CONFLICT -eq 1 ]]; then
+    echo ""
+    print_warn "检测到端口冲突，请选择:"
+    echo "  方案 A: 停止占用端口的进程后重新运行 ./deploy.sh"
+    echo "          （查进程: sudo ss -tlnp | grep :80  /  sudo lsof -i :80）"
+    echo "  方案 B: 修改 .env 中的端口，例如 FRONTEND_PORT=8080"
+    echo "          （命令: nano .env，改完直接重新运行 ./deploy.sh）"
+    echo "          记得在腾讯云控制台安全组放行新端口"
+    echo ""
+    read -p "$(echo -e ${YELLOW}"是否继续尝试启动？(y/N): "${NC})" CONTINUE
+    if [[ "$CONTINUE" != "y" && "$CONTINUE" != "Y" ]]; then
+        print_info "已中止。请处理端口冲突后重新运行 ./deploy.sh"
+        exit 1
+    fi
+    print_warn "继续启动（可能因端口冲突失败）..."
+fi
+echo ""
+
+#---------------------------------------------
 # 5. 构建并启动服务
 #---------------------------------------------
 print_info "步骤 4/4: 构建并启动服务..."
@@ -151,7 +201,7 @@ print_info "等待服务启动..."
 MAX_WAIT=60
 WAITED=0
 while [ $WAITED -lt $MAX_WAIT ]; do
-    if curl -s http://localhost:8000/ > /dev/null 2>&1; then
+    if curl -s http://localhost:${BACKEND_PORT}/ > /dev/null 2>&1; then
         break
     fi
     sleep 2
@@ -176,16 +226,16 @@ print_info "=========================================="
 PUBLIC_IP=$(curl -s http://metadata.tencentyun.com/latest/meta-data/public-ipv4 2>/dev/null || curl -s ifconfig.me 2>/dev/null || echo "localhost")
 
 # 检查后端
-if curl -s http://localhost:8000/ > /dev/null 2>&1; then
-    print_ok "后端服务: 运行中 (端口 8000)"
+if curl -s http://localhost:${BACKEND_PORT}/ > /dev/null 2>&1; then
+    print_ok "后端服务: 运行中 (端口 $BACKEND_PORT)"
 else
     print_error "后端服务: 未响应"
     print_info "查看日志: docker logs thesis-review-backend"
 fi
 
 # 检查前端
-if curl -s http://localhost:80 > /dev/null 2>&1; then
-    print_ok "前端服务: 运行中 (端口 80)"
+if curl -s http://localhost:${FRONTEND_PORT} > /dev/null 2>&1; then
+    print_ok "前端服务: 运行中 (端口 $FRONTEND_PORT)"
 else
     print_error "前端服务: 未响应"
     print_info "查看日志: docker logs thesis-review-frontend"
@@ -197,14 +247,23 @@ print_ok  "部署完成！"
 print_info "=========================================="
 echo ""
 echo -e "  ${GREEN}访问地址:${NC}"
-echo -e "    前端界面:  http://${PUBLIC_IP}"
-echo -e "    后端API:   http://${PUBLIC_IP}:8000"
-echo -e "    API文档:   http://${PUBLIC_IP}:8000/docs"
+# 拼接 URL，默认 80 不带端口号
+if [[ "$FRONTEND_PORT" == "80" ]]; then
+    echo -e "    前端界面:  http://${PUBLIC_IP}"
+else
+    echo -e "    前端界面:  http://${PUBLIC_IP}:${FRONTEND_PORT}"
+fi
+if [[ "$BACKEND_PORT" == "8000" ]]; then
+    echo -e "    后端API:   http://${PUBLIC_IP}:${BACKEND_PORT}"
+else
+    echo -e "    后端API:   http://${PUBLIC_IP}:${BACKEND_PORT}"
+fi
+echo -e "    API文档:   http://${PUBLIC_IP}:${BACKEND_PORT}/docs"
 echo ""
 echo -e "  ${YELLOW}重要提示:${NC}"
 echo -e "    请确保腾讯云安全组已放行以下端口:"
-echo -e "    - TCP 80  (HTTP 前端访问)"
-echo -e "    - TCP 8000 (API 直连, 可选)"
+echo -e "    - TCP $FRONTEND_PORT (前端访问)"
+echo -e "    - TCP $BACKEND_PORT (API 直连, 可选)"
 echo ""
 echo -e "  ${BLUE}常用命令:${NC}"
 echo -e "    查看日志:   $COMPOSE_CMD logs -f"
