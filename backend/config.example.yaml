@@ -1,0 +1,122 @@
+# 大模型配置示例文件
+# 复制此文件为 config.yaml 并填入你的配置
+
+# ============================================
+# OpenAI 配置示例
+# ============================================
+llm:
+  api_key: "sk-xxxxxxxxxxxxxxxx"
+  base_url: "https://api.openai.com/v1"
+  model: "gpt-4"  # 或 gpt-3.5-turbo
+  temperature: 0.3
+  max_tokens: 2000
+
+# ============================================
+# Azure OpenAI 配置示例
+# ============================================
+# llm:
+#   api_key: "your-azure-api-key"
+#   base_url: "https://your-resource.openai.azure.com/"
+#   model: "your-deployment-name"
+#   temperature: 0.3
+#   max_tokens: 2000
+
+# ============================================
+# 通义千问 配置示例
+# ============================================
+# llm:
+#   api_key: "sk-xxxxxxxxxxxxxxxx"
+#   base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+#   model: "qwen-plus"  # 或 qwen-turbo, qwen-max
+#   temperature: 0.3
+#   max_tokens: 2000
+
+# ============================================
+# 智谱AI 配置示例
+# ============================================
+# llm:
+#   api_key: "xxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxx"
+#   base_url: "https://open.bigmodel.cn/api/paas/v4"
+#   model: "glm-4"  # 或 glm-3-turbo
+#   temperature: 0.3
+#   max_tokens: 2000
+
+# ============================================
+# 文心一言 配置示例
+# ============================================
+# llm:
+#   api_key: "your-api-key"
+#   base_url: "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop"
+#   model: "ernie-bot-4"
+#   temperature: 0.3
+#   max_tokens: 2000
+
+# ============================================
+# 评审标准配置
+# ============================================
+evaluation:
+  criteria:
+    - name: "选题质量"
+      weight: 0.15
+      max_score: 100
+      description: "选题的创新性、实用性和可行性"
+      
+    - name: "文献综述"
+      weight: 0.15
+      max_score: 100
+      description: "文献调研的全面性和深度"
+      
+    - name: "研究方法"
+      weight: 0.20
+      max_score: 100
+      description: "研究方法的科学性和合理性"
+      
+    - name: "论文结构"
+      weight: 0.15
+      max_score: 100
+      description: "论文结构的完整性和逻辑性"
+      
+    - name: "内容质量"
+      weight: 0.25
+      max_score: 100
+      description: "论文内容的深度和创新性"
+      
+    - name: "写作规范"
+      weight: 0.10
+      max_score: 100
+      description: "格式规范、语言表达和引用规范"
+
+  # 总分范围
+  total_score_range:
+    min: 0
+    max: 100
+
+  # 评级标准
+  grade_levels:
+    - grade: "优秀"
+      min_score: 90
+    - grade: "良好"
+      min_score: 80
+    - grade: "中等"
+      min_score: 70
+    - grade: "及格"
+      min_score: 60
+    - grade: "不及格"
+      min_score: 0
+
+# ============================================
+# 参数说明
+# ============================================
+# temperature: 控制输出的随机性，0-1之间
+#   - 0.3: 更确定、一致的输出（推荐用于评审）
+#   - 0.7: 更有创造性的输出
+#   - 1.0: 最大随机性
+#
+# max_tokens: 最大输出长度
+#   - 建议: 1500-2500
+#   - 过小: 评价可能不完整
+#   - 过大: 增加成本和响应时间
+#
+# weight: 各项权重，总和必须为1.0
+#
+# max_score: 各项满分，建议统一为100

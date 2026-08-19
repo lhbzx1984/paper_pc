@@ -1,0 +1,30 @@
+.App {
+  text-align: center;
+}
+
+.upload-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.result-card {
+  margin-top: 24px;
+}
+
+.score-display {
+  text-align: center;
+  padding: 40px;
+}
+
+.total-score {
+  font-size: 72px;
+  font-weight: bold;
+  color: #1890ff;
+  margin: 0;
+}
+
+.grade-badge {
+  font-size: 24px;
+  margin-top: 16px;
+}

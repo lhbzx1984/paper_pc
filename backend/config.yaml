@@ -1,0 +1,66 @@
+evaluation:
+  criteria:
+  - description: 选题符合专业培养目标，能体现综合训练基本要求
+    max_score: 5
+    name: 选题目的
+    weight: 0.05
+  - description: 面向所在专业领域学术问题或行业社会实际问题（专业领域的理论问题、现实问题或技术问题），具有一定的理论意义或实用价值
+    max_score: 5
+    name: 研究意义
+    weight: 0.05
+  - description: 论文章节体系完整，设计合理，逻辑结构严谨，层次清晰，重点突出
+    max_score: 10
+    name: 层次建构
+    weight: 0.1
+  - description: 论文观点符合社会主义核心价值观；论点鲜明，论据确凿，论证充分；语言准确，文字流畅，符合学术或行业撰写规范或表达习惯
+    max_score: 10
+    name: 论点表达
+    weight: 0.1
+  - description: 查阅国内外文献，数量及占比达到学校规定要求；知悉本领域研究现状或行业动态，综述与分析符合专业要求，能支撑该设计（论文）的选题
+    max_score: 10
+    name: 文献检索综述能力
+    weight: 0.1
+  - description: 将相关领域的基础理论、专业知识用于专业问题解决方案的分析、比较与综合，体现扎实的专业基础与一定的工作能力
+    max_score: 10
+    name: 综合应用知识能力
+    weight: 0.1
+  - description: 研究内容充实，研究（设计、调研等）方法合理，论证分析严谨，数据记录规范，能体现一定的分析解决本专业领域问题的科学思维能力及科学素养
+    max_score: 15
+    name: 分析解决问题能力
+    weight: 0.15
+  - description: 提出的观点鲜明、独到；或将专业理论创新性应用；或阐释内容对实践有指导意义
+    max_score: 10
+    name: 创新能力
+    weight: 0.1
+  - description: 论文符合选题设定任务，工作量符合专业要求，论文撰写格式符合学校要求
+    max_score: 10
+    name: 基本要求
+    weight: 0.1
+  - description: 文字、图表、公式符号、缩略词、行文格式等符合通行学术规范
+    max_score: 10
+    name: 行文规范
+    weight: 0.1
+  - description: 资料引证、参考文献等符合通行学术规范和知识产权相关规定
+    max_score: 5
+    name: 参考文献
+    weight: 0.05
+  grade_levels:
+  - grade: 优秀
+    min_score: 90
+  - grade: 良好
+    min_score: 80
+  - grade: 中等
+    min_score: 70
+  - grade: 及格
+    min_score: 60
+  - grade: 不及格
+    min_score: 0
+  total_score_range:
+    max: 100
+    min: 0
+llm:
+  api_key: your-api-key-here
+  base_url: https://api.deepseek.com/v1
+  max_tokens: 2000
+  model: deepseek-chat
+  temperature: 0.3
